@@ -1,0 +1,17 @@
+StudentID,Name,Date,Status
+101,Alice Smith,2023-09-01,Present
+102,Bob Johnson,2023-09-01,Present
+103,Charlie Brown,2023-09-01,Absent
+104,Diana Prince,2023-09-01,Present
+101,Alice Smith,2023-09-02,Present
+102,Bob Johnson,2023-09-02,Absent
+103,Charlie Brown,2023-09-02,Absent
+104,Diana Prince,2023-09-02,Present
+101,Alice Smith,2023-09-03,Present
+102,Bob Johnson,2023-09-03,Present
+103,Charlie Brown,2023-09-03,Present
+104,Diana Prince,2023-09-03,Present
+101,Alice Smith,2023-09-04,Absent
+102,Bob Johnson,2023-09-04,Present
+103,Charlie Brown,2023-09-04,Present
+104,Diana Prince,2023-09-04,Present
