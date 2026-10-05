@@ -1,0 +1,26 @@
+StudentID,Name,Date,Status
+S1001,Aarav Mehta,2026-09-01,Present
+S1001,Aarav Mehta,2026-09-02,Present
+S1001,Aarav Mehta,2026-09-03, Present 
+S1001,Aarav Mehta,2026-09-04,Absent
+S1001,Aarav Mehta,2026-09-05,Present
+S1002,Isha Kapoor,2026-09-01,Present
+S1002,Isha Kapoor,2026-09-02,Absent
+S1002,Isha Kapoor,2026-09-03,Absent
+S1002,Isha Kapoor,2026-09-04,ABSENT
+S1002,Isha Kapoor,2026-09-05,Present
+S1003,Rohan Das,2026-09-01,Present
+S1003,Rohan Das,2026-09-02,Present
+S1003,Rohan Das,2026-09-03,Present
+S1003,Rohan Das,2026-09-04,Present
+S1003,Rohan Das,2026-09-05,Absent
+S1004,Priya Nair,2026-09-01,Present
+S1004,Priya Nair,2026-09-02,Present
+S1004,Priya Nair,2026-09-03,Present
+S1004,Priya Nair,2026-09-04,Present
+S1004,Priya Nair,2026-09-05,Present
+S1005,Kabir Singh,2026-09-01,Absent
+S1005,Kabir Singh,2026-09-02,Absent
+S1005,Kabir Singh,2026-09-03,Present
+S1005,Kabir Singh,2026-09-04,Absent
+S1005,Kabir Singh,2026-09-05, absent 
