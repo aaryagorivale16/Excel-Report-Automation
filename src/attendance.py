@@ -70,8 +70,15 @@ def process_attendance(file_path: str, threshold: float = 75.0) -> pd.DataFrame:
     # We create a helper column to easily sum up present days based on the cleaned Status
     df['Is_Present'] = (df['Status'] == 'present').astype(int)
     
-    # Group by student ID and Name
-    summary_df = df.groupby(['StudentID', 'Name']).agg(
+    # Group by student ID and Name (and Division if present)
+    group_cols = ['StudentID', 'Name']
+    if 'Division' in df.columns:
+        group_cols.append('Division')
+    elif 'division' in df.columns:
+        df['Division'] = df['division']
+        group_cols.append('Division')
+
+    summary_df = df.groupby(group_cols).agg(
         Total_Classes=('Status', 'count'),
         Classes_Attended=('Is_Present', 'sum')
     ).reset_index()

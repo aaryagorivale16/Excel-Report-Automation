@@ -10,28 +10,39 @@ import pandas as pd
 import numpy as np
 import os
 
-def _assign_grade(percent: float, pass_percentage: float) -> str:
+def _assign_grade(percent: float, pass_percentage: float, grade_boundaries: dict = None) -> str:
     """
     Helper function to map an overall percentage to a letter grade.
-    The viva grading scale is: A+ (>=90), A (>=75), B (>=60), 
+    The default grading scale is: A+ (>=90), A (>=75), B (>=60), 
     C (>=50), D (>= pass_percentage), F (below pass_percentage).
+    Custom thresholds can be supplied via the grade_boundaries dict.
     """
     if pd.isna(percent):
         return "F"
-    if percent >= 90:
+        
+    if grade_boundaries:
+        a_plus = float(grade_boundaries.get("A+", 90.0))
+        a = float(grade_boundaries.get("A", 75.0))
+        b = float(grade_boundaries.get("B", 60.0))
+        c = float(grade_boundaries.get("C", 50.0))
+        d = float(grade_boundaries.get("D", pass_percentage))
+    else:
+        a_plus, a, b, c, d = 90.0, 75.0, 60.0, 50.0, pass_percentage
+
+    if percent >= a_plus:
         return "A+"
-    elif percent >= 75:
+    elif percent >= a:
         return "A"
-    elif percent >= 60:
+    elif percent >= b:
         return "B"
-    elif percent >= 50:
+    elif percent >= c:
         return "C"
-    elif percent >= pass_percentage:
+    elif percent >= d:
         return "D"
     else:
         return "F"
 
-def process_marks(file_path: str, pass_percentage: float = 40.0) -> tuple:
+def process_marks(file_path: str, pass_percentage: float = 40.0, grade_boundaries: dict = None) -> tuple:
     """
     Process a raw marks file into three summary DataFrames.
 
@@ -105,8 +116,15 @@ def process_marks(file_path: str, pass_percentage: float = 40.0) -> tuple:
             'Overall_Percent', 'Grade', 'Final_Status', 'Class_Rank'
         ])
     else:
-        # 6. Group by Student to compute totals
-        summary_df = df.groupby(['StudentID', 'Name']).agg(
+        # 6. Group by Student to compute totals (and Division if present)
+        group_cols = ['StudentID', 'Name']
+        if 'Division' in df.columns:
+            group_cols.append('Division')
+        elif 'division' in df.columns:
+            df['Division'] = df['division']
+            group_cols.append('Division')
+
+        summary_df = df.groupby(group_cols).agg(
             Total_Marks=('Marks', 'sum'),
             Total_MaxMarks=('MaxMarks', 'sum'),
             Any_Subject_Failed=('Failed_Subject', 'any') # True if any row had Failed_Subject == True
@@ -122,7 +140,7 @@ def process_marks(file_path: str, pass_percentage: float = 40.0) -> tuple:
 
         # 8. Grade Assignment via .apply()
         summary_df["Grade"] = summary_df["Overall_Percent"].apply(
-            lambda p: _assign_grade(p, pass_percentage)
+            lambda p: _assign_grade(p, pass_percentage, grade_boundaries)
         )
 
         # 9. Final_Status (Pass/Fail)

@@ -1,0 +1,9 @@
+StudentID,Name,Division,Date,Status
+201,Sophia Clark,A,2026-09-01,Present
+202,Lucas Miller,A,2026-09-01,Present
+203,Oliver Garcia,B,2026-09-01,Absent
+204,Emma Davis,B,2026-09-01,Present
+201,Sophia Clark,A,2026-09-02,Present
+202,Lucas Miller,A,2026-09-02,Absent
+203,Oliver Garcia,B,2026-09-02,Present
+204,Emma Davis,B,2026-09-02,Present

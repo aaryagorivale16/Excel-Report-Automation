@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite Database
+*.db
+*.sqlite3
+
+# Generated Excel outputs
+src/outputs/*.xlsx
+
+# Environment & IDE
+.venv/
+env/
+.vscode/
+.idea/

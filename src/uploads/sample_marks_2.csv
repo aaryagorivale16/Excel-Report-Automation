@@ -1,0 +1,13 @@
+StudentID,Name,Subject,Marks,MaxMarks
+101,Alice Smith,Math,85,100
+101,Alice Smith,Physics,90,100
+101,Alice Smith,Chemistry,88,100
+102,Bob Johnson,Math,45,100
+102,Bob Johnson,Physics,50,100
+102,Bob Johnson,Chemistry,40,100
+103,Charlie Brown,Math,75,100
+103,Charlie Brown,Physics,65,100
+103,Charlie Brown,Chemistry,70,100
+104,Diana Prince,Math,95,100
+104,Diana Prince,Physics,98,100
+104,Diana Prince,Chemistry,96,100

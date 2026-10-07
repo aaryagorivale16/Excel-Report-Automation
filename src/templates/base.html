@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduMetrics | Academic Performance Suite{% endblock %}</title>
+    <meta name="description" content="Academic performance and attendance automation suite with multi-class management, custom grading policies, and publication-ready reporting.">
+    <!-- Strict Typography: Playfair Display + Clarity City -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Clarity+City:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    <!-- Master Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Master Outer Full-Screen Layout -->
+    <div class="app-frame">
+        <!-- Top Navbar with Pill Nav Items & Connected Action Button -->
+        <header class="chic-navbar" id="mainNavbar">
+            <a href="{{ url_for('index') }}" class="brand-wrapper" id="navBrandLogo">
+                <div class="brand-squircle">
+                    <!-- Clean SVG Academic Icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="brand-name">EduMetrics</span>
+                    <span class="brand-sub">Academic Suite</span>
+                </div>
+            </a>
+
+            {% if session.get('teacher_id') %}
+            <nav>
+                <ul class="nav-pills">
+                    <li>
+                        <a href="{{ url_for('index') }}" class="nav-pill-item {% if active_page == 'upload' %}active{% endif %}" id="navLinkUpload">
+                            Upload &amp; Validator
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard') }}" class="nav-pill-item {% if active_page == 'dashboard' %}active{% endif %}" id="navLinkDashboard">
+                            Analytics Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('settings') }}" class="nav-pill-item {% if active_page == 'settings' %}active{% endif %}" id="navLinkSettings">
+                            Academic Criteria
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('templates_view') }}" class="nav-pill-item {% if active_page == 'templates' %}active{% endif %}" id="navLinkTemplates">
+                            Sample Templates
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="nav-actions" style="display: flex; align-items: center; gap: 0.85rem;">
+                <!-- Suggestion 1.1: Class / Division Switcher -->
+                {% if teacher_classes %}
+                <form action="{{ url_for('switch_class') }}" method="POST" id="classSwitchForm" style="margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 0.4rem; background: var(--color-cream-white); border: 1px solid var(--color-light-slate); border-radius: var(--radius-pill); padding: 0.2rem 0.6rem 0.2rem 0.85rem;">
+                        <span style="font-size: 0.72rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase;">Class:</span>
+                        <select name="active_class" class="action-bar-input" style="font-size: 0.825rem; font-weight: 600; cursor: pointer; color: var(--color-text-dark); padding: 0.2rem 0; width: auto;" onchange="this.form.submit()">
+                            {% for c in teacher_classes %}
+                            <option value="{{ c }}" {% if c == active_class %}selected{% endif %}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+                {% endif %}
+
+                <!-- Teacher Profile & Logout -->
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="chic-badge badge-sage" style="font-size: 0.8rem; padding: 0.45rem 0.9rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span>{{ session.get('teacher_name', 'Teacher') }}</span>
+                    </span>
+                    <a href="{{ url_for('logout') }}" class="pill-btn pill-btn-sm pill-btn-outline" title="Log out of teacher portal" style="padding: 0.45rem 0.85rem;">
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <!-- Unauthenticated Nav Actions -->
+            <div class="nav-actions" style="display: flex; align-items: center; gap: 0.75rem;">
+                <a href="{{ url_for('login') }}" class="pill-btn pill-btn-outline pill-btn-sm">
+                    Sign In
+                </a>
+                <a href="{{ url_for('signup') }}" class="dual-pill-btn">
+                    <span>Create Account</span>
+                    <div class="dual-pill-circle">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+        </header>
+
+        <!-- Dynamic Main Content Area -->
+        <main class="main-content-area">
+            <!-- Flash & Alert Messages (Zero Emojis, Clean SVG) -->
+            {% if error %}
+            <div class="chic-alert chic-alert-error" id="globalErrorAlert">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span>{{ error }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if success %}
+            <div class="chic-alert chic-alert-success" id="globalSuccessAlert">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <span>{{ success }}</span>
+                </div>
+                {% if download_link %}
+                <a href="{{ url_for('download', filename=download_link) }}" class="pill-btn pill-btn-sm pill-btn-olive" id="alertBtnDownload">
+                    Download Excel
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Signature Dark Rounded Feature Band & Footer -->
+        <footer class="dark-feature-band">
+            <div class="band-inner-grid">
+                <div class="band-brand-col">
+                    <h3 class="band-headline">
+                        Academic intelligence, <em>structured with precision.</em>
+                    </h3>
+                    <p style="font-size: 0.9rem; color: var(--color-light-slate); max-width: 440px;">
+                        Automated multi-sheet Excel generation, verified student attendance tracking, and customizable grading policy engine across classes and divisions.
+                    </p>
+                    <div class="band-actions">
+                        {% if session.get('teacher_id') %}
+                        <a href="{{ url_for('index') }}" class="dual-pill-btn" style="background: var(--color-slate);">
+                            <span>Upload Class Records</span>
+                            <div class="dual-pill-circle" style="background: var(--color-light-slate);">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                    <polyline points="12 5 19 12 12 19"/>
+                                </svg>
+                            </div>
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('signup') }}" class="dual-pill-btn" style="background: var(--color-slate);">
+                            <span>Teacher Sign Up</span>
+                            <div class="dual-pill-circle" style="background: var(--color-light-slate);">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                    <polyline points="12 5 19 12 12 19"/>
+                                </svg>
+                            </div>
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('templates_view') }}" class="pill-btn pill-btn-outline" style="border-color: rgba(255,255,255,0.2); color: var(--color-cream);">
+                            View Schemas
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Row of Rounded Icon Tiles -->
+                <div class="quick-tiles-grid">
+                    <a href="{{ url_for('index') }}" class="quick-tile">
+                        <div class="quick-tile-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </div>
+                        <span class="quick-tile-label">Attendance</span>
+                    </a>
+
+                    <a href="{{ url_for('dashboard') }}" class="quick-tile">
+                        <div class="quick-tile-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                            </svg>
+                        </div>
+                        <span class="quick-tile-label">Analytics</span>
+                    </a>
+
+                    <a href="{{ url_for('settings') }}" class="quick-tile">
+                        <div class="quick-tile-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                        </div>
+                        <span class="quick-tile-label">Policies</span>
+                    </a>
+
+                    <a href="{{ url_for('templates_view') }}" class="quick-tile">
+                        <div class="quick-tile-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                        </div>
+                        <span class="quick-tile-label">Templates</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="band-footer-bottom">
+                <span>EduMetrics Automation Suite &bull; Multi-Class &amp; Division Reporting Engine</span>
+                <span>Teacher Workspace &bull; Zero Pre-loaded Data for Fresh Accounts</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Client-side script -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

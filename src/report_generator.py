@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -30,11 +31,11 @@ def _add_attendance_chart(ws_summary, ws_attendance, attendance_df):
     name_col_idx = None
     att_col_idx = None
     
-    # Find the column indices for "Name" and "AttendancePercent"
+    # Find the column indices for "Name" and "AttendancePercent" / "Attendance_Percent"
     for cell in ws_attendance[1]:
         if cell.value == "Name":
             name_col_idx = cell.column
-        elif cell.value == "AttendancePercent":
+        elif cell.value in ("AttendancePercent", "Attendance_Percent"):
             att_col_idx = cell.column
             
     if not name_col_idx or not att_col_idx:
@@ -127,18 +128,25 @@ def _add_pass_fail_chart(ws_summary, marks_df):
     ws_summary.add_chart(chart, "A16")
 
 
-def generate_report(attendance_df: pd.DataFrame, marks_df: pd.DataFrame, output_path: str) -> None:
+def generate_report(
+    attendance_df: pd.DataFrame, 
+    marks_df: pd.DataFrame, 
+    output_path: str, 
+    toppers_df: pd.DataFrame = None, 
+    at_risk_df: pd.DataFrame = None,
+    attendance_threshold: float = 75.0
+) -> None:
     """
     Generate a consolidated Excel report from attendance and marks DataFrames.
-    Includes a Summary dashboard sheet, data sheets, and conditional formatting.
+    Includes a Summary dashboard sheet, data sheets, optional Toppers and At-Risk sheets, and conditional formatting.
     """
     wb = Workbook()
     
     if "Sheet" in wb.sheetnames:
         wb.remove(wb["Sheet"])
 
-    # 1. Create a "Summary" sheet and insert it at index=0
-    ws_summary = wb.create_sheet("Summary", 0)
+    # 1. Create a "Master_Summary" sheet and insert it at index=0
+    ws_summary = wb.create_sheet("Master_Summary", 0)
 
     # ---------------------------------------------------------
     # ATTENDANCE SHEET
@@ -148,9 +156,9 @@ def generate_report(attendance_df: pd.DataFrame, marks_df: pd.DataFrame, output_
         ws_attendance.append(row)
         
     if ws_attendance.max_row > 1:
-        att_col = _get_column_letter(ws_attendance, 1, "AttendancePercent")
+        att_col = _get_column_letter(ws_attendance, 1, "Attendance_Percent") or _get_column_letter(ws_attendance, 1, "AttendancePercent")
         if att_col:
-            rule = CellIsRule(operator='lessThan', formula=['75'], stopIfTrue=True, fill=RED_FILL)
+            rule = CellIsRule(operator='lessThan', formula=[str(attendance_threshold)], stopIfTrue=True, fill=RED_FILL)
             ws_attendance.conditional_formatting.add(f'{att_col}2:{att_col}{ws_attendance.max_row}', rule)
 
     # ---------------------------------------------------------
@@ -165,6 +173,57 @@ def generate_report(attendance_df: pd.DataFrame, marks_df: pd.DataFrame, output_
         if grade_col:
             rule = CellIsRule(operator='equal', formula=['"F"'], stopIfTrue=True, fill=RED_FILL)
             ws_marks.conditional_formatting.add(f'{grade_col}2:{grade_col}{ws_marks.max_row}', rule)
+
+    # ---------------------------------------------------------
+    # TOPPERS SHEET (Optional)
+    # ---------------------------------------------------------
+    if toppers_df is not None and not toppers_df.empty:
+        ws_toppers = wb.create_sheet(title="Toppers")
+        for row in dataframe_to_rows(toppers_df, index=False, header=True):
+            ws_toppers.append(row)
+
+    # ---------------------------------------------------------
+    # AT-RISK SHEET (Optional)
+    # ---------------------------------------------------------
+    if at_risk_df is not None and not at_risk_df.empty:
+        ws_risk = wb.create_sheet(title="At-Risk")
+        for row in dataframe_to_rows(at_risk_df, index=False, header=True):
+            ws_risk.append(row)
+
+    # ---------------------------------------------------------
+    # MULTI-DIVISION SUB-SHEETS (Suggestion 1.2)
+    # ---------------------------------------------------------
+    if "Division" in attendance_df.columns:
+        divs = attendance_df["Division"].dropna().unique()
+        if len(divs) > 1:
+            for div in sorted(divs):
+                div_att_df = attendance_df[attendance_df["Division"] == div]
+                clean_div = re.sub(r'[^a-zA-Z0-9]', '', str(div))
+                div_title = clean_div if clean_div.lower().startswith('div') else f"Div{clean_div}"
+                ws_div_att = wb.create_sheet(title=f"Attendance_{div_title}")
+                for row in dataframe_to_rows(div_att_df, index=False, header=True):
+                    ws_div_att.append(row)
+                if ws_div_att.max_row > 1:
+                    att_col = _get_column_letter(ws_div_att, 1, "Attendance_Percent") or _get_column_letter(ws_div_att, 1, "AttendancePercent")
+                    if att_col:
+                        rule = CellIsRule(operator='lessThan', formula=[str(attendance_threshold)], stopIfTrue=True, fill=RED_FILL)
+                        ws_div_att.conditional_formatting.add(f'{att_col}2:{att_col}{ws_div_att.max_row}', rule)
+
+    if "Division" in marks_df.columns:
+        divs = marks_df["Division"].dropna().unique()
+        if len(divs) > 1:
+            for div in sorted(divs):
+                div_marks_df = marks_df[marks_df["Division"] == div]
+                clean_div = re.sub(r'[^a-zA-Z0-9]', '', str(div))
+                div_title = clean_div if clean_div.lower().startswith('div') else f"Div{clean_div}"
+                ws_div_marks = wb.create_sheet(title=f"Marks_{div_title}")
+                for row in dataframe_to_rows(div_marks_df, index=False, header=True):
+                    ws_div_marks.append(row)
+                if ws_div_marks.max_row > 1:
+                    grade_col = _get_column_letter(ws_div_marks, 1, "Grade")
+                    if grade_col:
+                        rule = CellIsRule(operator='equal', formula=['"F"'], stopIfTrue=True, fill=RED_FILL)
+                        ws_div_marks.conditional_formatting.add(f'{grade_col}2:{grade_col}{ws_div_marks.max_row}', rule)
 
     # ---------------------------------------------------------
     # CHARTS & DASHBOARDS (Week 3)

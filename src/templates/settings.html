@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Academic Criteria & Policy Configuration | EduMetrics{% endblock %}
+
+{% block content %}
+<!-- Settings Hero Header -->
+<section class="chic-hero" style="padding-bottom: 1.5rem;">
+    <div class="hero-content">
+        <h1 class="hero-headline">
+            Academic Criteria <em>&amp; Grading Policy.</em>
+        </h1>
+        <p class="hero-subtitle">
+            Configure institutional attendance minimums, baseline passing thresholds, and letter grade brackets. Settings apply deterministically to real-time analytics and generated Excel spreadsheets.
+        </p>
+    </div>
+
+    <div class="hero-feature-card" style="min-height: auto; padding: 1.5rem; justify-content: center; gap: 0.5rem;">
+        <div class="feature-tag-top">
+            <span>Institutional Scope</span>
+        </div>
+        <h3 style="font-family: var(--font-title); font-size: 1.25rem; margin: 0.25rem 0;">Deterministic Policy Engine</h3>
+        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0;">
+            Threshold updates immediately recalculate pass/fail flags, at-risk classifications, and color fills across the workbook.
+        </p>
+    </div>
+</section>
+
+<form action="{{ url_for('settings') }}" method="POST">
+    <div class="form-grid" style="margin-bottom: 2rem;">
+        <!-- Left: Threshold Controls -->
+        <div class="chic-card" style="margin-bottom: 0;">
+            <div class="chic-card-header">
+                <span class="chic-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-olive)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 14 14"/>
+                    </svg>
+                    <span>Passing &amp; Attendance Thresholds</span>
+                </span>
+            </div>
+
+            <!-- Attendance Threshold Slider -->
+            <div class="slider-group">
+                <div class="slider-header">
+                    <label for="setting_att_threshold" style="font-weight: 600; font-size: 0.875rem; color: var(--color-text-dark);">
+                        Minimum Attendance Threshold:
+                    </label>
+                    <span class="slider-value-display" id="display_att_threshold">{{ policy.attendance_threshold }}%</span>
+                </div>
+                <input type="range" name="attendance_threshold" id="setting_att_threshold" min="50" max="95" step="1" value="{{ policy.attendance_threshold }}">
+                <span style="font-size: 0.775rem; color: var(--color-text-muted);">
+                    Default is 75%. Students below this mark are flagged in red in the Attendance tab and listed under the At-Risk register.
+                </span>
+            </div>
+
+            <!-- Passing Mark Slider -->
+            <div class="slider-group" style="margin-top: 1rem;">
+                <div class="slider-header">
+                    <label for="setting_pass_percentage" style="font-weight: 600; font-size: 0.875rem; color: var(--color-text-dark);">
+                        Minimum Passing Score:
+                    </label>
+                    <span class="slider-value-display" id="display_pass_percentage">{{ policy.pass_percentage }}%</span>
+                </div>
+                <input type="range" name="pass_percentage" id="setting_pass_percentage" min="30" max="75" step="1" value="{{ policy.pass_percentage }}">
+                <span style="font-size: 0.775rem; color: var(--color-text-muted);">
+                    Default is 40%. A student scoring below this overall or failing any individual subject will be assigned Grade F and status Fail.
+                </span>
+            </div>
+        </div>
+
+        <!-- Right: Grade Scale Configuration -->
+        <div class="chic-card" style="margin-bottom: 0;">
+            <div class="chic-card-header">
+                <span class="chic-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-slate)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                    <span>Letter Grade Cutoffs</span>
+                </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--color-text-muted); display: block; margin-bottom: 0.35rem; font-weight: 600;">Grade A+ Minimum %</label>
+                    <input type="number" name="grade_a_plus" class="chic-input" style="width: 100%;" min="80" max="100" value="{{ policy.grade_boundaries.get('A+', 90) }}">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--color-text-muted); display: block; margin-bottom: 0.35rem; font-weight: 600;">Grade A Minimum %</label>
+                    <input type="number" name="grade_a" class="chic-input" style="width: 100%;" min="70" max="90" value="{{ policy.grade_boundaries.get('A', 75) }}">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--color-text-muted); display: block; margin-bottom: 0.35rem; font-weight: 600;">Grade B Minimum %</label>
+                    <input type="number" name="grade_b" class="chic-input" style="width: 100%;" min="55" max="75" value="{{ policy.grade_boundaries.get('B', 60) }}">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--color-text-muted); display: block; margin-bottom: 0.35rem; font-weight: 600;">Grade C Minimum %</label>
+                    <input type="number" name="grade_c" class="chic-input" style="width: 100%;" min="45" max="65" value="{{ policy.grade_boundaries.get('C', 50) }}">
+                </div>
+            </div>
+
+            <p style="font-size: 0.775rem; color: var(--color-text-dim); margin-top: 1rem; line-height: 1.55;">
+                * Grade D applies to scores between the Minimum Passing Score and Grade C. Grade F automatically applies to all scores falling below the pass percentage.
+            </p>
+        </div>
+    </div>
+
+    <!-- Active Policy Summary Card -->
+    <div class="chic-card" style="margin-bottom: 2rem;">
+        <div class="chic-card-header">
+            <span class="chic-card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-olive)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <span>Live Policy Impact Summary</span>
+            </span>
+            <span class="chic-badge badge-sage">Active Evaluation Rules</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+            <div style="background: var(--color-cream-surface); padding: 1.25rem; border-radius: var(--radius-tile); border: 1px solid rgba(167, 183, 198, 0.3);">
+                <div style="color: var(--color-text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Attendance Rule</div>
+                <div style="font-family: var(--font-title); font-weight: 700; margin-top: 0.35rem; font-size: 1.2rem; color: var(--color-text-dark);">
+                    Students &lt; <span id="rule_summary_att" style="color: var(--color-olive-dark);">{{ policy.attendance_threshold }}%</span>
+                </div>
+                <div style="color: var(--color-text-dim); font-size: 0.75rem; margin-top: 0.25rem;">Flagged for institutional notice &amp; at-risk register</div>
+            </div>
+
+            <div style="background: var(--color-cream-surface); padding: 1.25rem; border-radius: var(--radius-tile); border: 1px solid rgba(167, 183, 198, 0.3);">
+                <div style="color: var(--color-text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Passing Rule</div>
+                <div style="font-family: var(--font-title); font-weight: 700; margin-top: 0.35rem; font-size: 1.2rem; color: var(--color-text-dark);">
+                    Scores &lt; <span id="rule_summary_pass" style="color: var(--status-alert);">{{ policy.pass_percentage }}%</span>
+                </div>
+                <div style="color: var(--color-text-dim); font-size: 0.75rem; margin-top: 0.25rem;">Automatic Fail &amp; Red conditional formatting in Excel</div>
+            </div>
+
+            <div style="background: var(--color-cream-surface); padding: 1.25rem; border-radius: var(--radius-tile); border: 1px solid rgba(167, 183, 198, 0.3);">
+                <div style="color: var(--color-text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Scope</div>
+                <div style="font-family: var(--font-title); font-weight: 700; margin-top: 0.35rem; font-size: 1.2rem; color: var(--color-slate);">Universal Pipeline</div>
+                <div style="color: var(--color-text-dim); font-size: 0.75rem; margin-top: 0.25rem;">Applies to Web Views, Charts, and Downloaded Files</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <button type="submit" name="action" value="save" class="pill-btn pill-btn-olive" id="btnSaveSettings" style="min-width: 200px;">
+            <span>Save Policy Settings</span>
+        </button>
+        <button type="submit" name="action" value="save_and_run" class="dual-pill-btn" id="btnSaveAndRunDemo">
+            <span>Apply to Demo Dashboard</span>
+            <div class="dual-pill-circle">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="12 5 19 12 12 19"/>
+                </svg>
+            </div>
+        </button>
+    </div>
+</form>
+{% endblock %}

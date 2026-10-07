@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Sample Templates & Data Schemas | EduMetrics{% endblock %}
+
+{% block content %}
+<!-- Templates Hero Header -->
+<section class="chic-hero" style="padding-bottom: 1.5rem;">
+    <div class="hero-content">
+        <h1 class="hero-headline">
+            Starter Templates <em>&amp; Schema Documentation.</em>
+        </h1>
+        <p class="hero-subtitle">
+            Download pre-formatted sample CSV templates or review exact column specifications to guarantee seamless ingestion by the automation pipeline.
+        </p>
+    </div>
+
+    <div class="hero-feature-card" style="min-height: auto; padding: 1.5rem; justify-content: center; gap: 0.75rem;">
+        <div class="feature-tag-top">
+            <span>Validation Ready</span>
+        </div>
+        <h3 style="font-family: var(--font-title); font-size: 1.25rem; margin: 0.25rem 0;">Deterministic Verification</h3>
+        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0;">
+            Files following these column contracts pass pre-flight checks and compile into formatted Excel workbooks without manual intervention.
+        </p>
+        <form action="{{ url_for('quick_demo') }}" method="POST" style="margin-top: 0.5rem;">
+            <button type="submit" class="dual-pill-btn" id="btnTemplatesRunDemo">
+                <span>Run Demo with Templates</span>
+                <div class="dual-pill-circle">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </div>
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- Template Download Cards Grid -->
+<div class="upload-grid" style="margin-bottom: 2rem;">
+    <!-- Attendance Card -->
+    <div class="chic-card" style="margin-bottom: 0;">
+        <div class="chic-card-header">
+            <span class="chic-card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-olive)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>Attendance Template Contract</span>
+            </span>
+            <span class="chic-badge badge-sage">CSV Format</span>
+        </div>
+        <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 1.25rem; line-height: 1.55;">
+            Contains date-wise attendance status for all students. Multiple sessions per student are aggregated into total classes and attendance percentage.
+        </p>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--color-cream-surface); padding: 1rem 1.25rem; border-radius: var(--radius-tile); border: 1px solid rgba(167, 183, 198, 0.35); margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+                <strong style="color: var(--color-text-dark); font-size: 0.95rem;">sample_attendance.csv</strong>
+                <div style="font-size: 0.75rem; color: var(--color-text-dim); margin-top: 2px;">4 Columns &bull; ~17 Records &bull; 612 B</div>
+            </div>
+            <a href="{{ url_for('download_sample', file_type='attendance') }}" class="pill-btn pill-btn-sm pill-btn-olive" id="btnDownloadAttTemplate">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Download Template</span>
+            </a>
+        </div>
+
+        <h4 style="font-family: var(--font-title); font-size: 1.05rem; margin-bottom: 0.65rem;">Required Columns</h4>
+        <div class="table-responsive">
+            <table class="chic-table">
+                <thead>
+                    <tr>
+                        <th>Field Name</th>
+                        <th>Type</th>
+                        <th>Description / Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code style="color: var(--color-slate); font-weight: 600;">StudentID</code></td>
+                        <td>String / Int</td>
+                        <td>Unique Student Identifier (e.g. <code>101</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--color-slate); font-weight: 600;">Name</code></td>
+                        <td>String</td>
+                        <td>Full student name (e.g. <code>Alice Smith</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--color-slate); font-weight: 600;">Date</code></td>
+                        <td>Date</td>
+                        <td>Lecture Date (e.g. <code>2023-09-01</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--color-slate); font-weight: 600;">Status</code></td>
+                        <td>String</td>
+                        <td><code>Present</code> or <code>Absent</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Marks Card -->
+    <div class="chic-card" style="margin-bottom: 0;">
+        <div class="chic-card-header">
+            <span class="chic-card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-slate)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                <span>Marks &amp; Assessment Contract</span>
+            </span>
+            <span class="chic-badge badge-slate">CSV Format</span>
+        </div>
+        <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 1.25rem; line-height: 1.55;">
+            Contains subject-wise scores and maximum attainable marks per student. Automatically computes cumulative totals, overall percent, grade, and rank.
+        </p>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--color-cream-surface); padding: 1rem 1.25rem; border-radius: var(--radius-tile); border: 1px solid rgba(167, 183, 198, 0.35); margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+                <strong style="color: var(--color-text-dark); font-size: 0.95rem;">sample_marks.csv</strong>
+                <div style="font-size: 0.75rem; color: var(--color-text-dim); margin-top: 2px;">5 Columns &bull; ~13 Records &bull; 428 B</div>
+            </div>
+            <a href="{{ url_for('download_sample', file_type='marks') }}" class="pill-btn pill-btn-sm pill-btn-slate" id="btnDownloadMarksTemplate">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Download Template</span>
+            </a>
+        </div>
+
+        <h4 style="font-family: var(--font-title); font-size: 1.05rem; margin-bottom: 0.65rem;">Required Columns</h4>
+        <div class="table-responsive">
+            <table class="chic-table">
+                <thead>
+                    <tr>
+                        <th>Field Name</th>
+                        <th>Type</th>
+                        <th>Description / Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code style="color: var(--color-slate); font-weight: 600;">StudentID</code></td>
+                        <td>String / Int</td>
+                        <td>Unique Student Identifier (e.g. <code>101</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--color-slate); font-weight: 600;">Name</code></td>
+                        <td>String</td>
+                        <td>Full student name (e.g. <code>Alice Smith</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--color-slate); font-weight: 600;">Subject</code></td>
+                        <td>String</td>
+                        <td>Subject title (e.g. <code>Math</code>, <code>Physics</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--color-slate); font-weight: 600;">Marks</code></td>
+                        <td>Numeric</td>
+                        <td>Score achieved (e.g. <code>85</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--color-slate); font-weight: 600;">MaxMarks</code></td>
+                        <td>Numeric</td>
+                        <td>Maximum possible score (e.g. <code>100</code>)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Live Previews of the Sample Datasets -->
+<div class="chic-card" style="margin-bottom: 2rem;">
+    <div class="chic-card-header">
+        <span class="chic-card-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-olive)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>Live Dataset Preview: Attendance Sample Data</span>
+        </span>
+        <span class="chic-badge badge-sage">Verified Records</span>
+    </div>
+    <div class="table-responsive">
+        <table class="chic-table">
+            <thead>
+                <tr>
+                    <th>StudentID</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in sample_att_preview %}
+                <tr>
+                    <td><code style="color: var(--color-slate); font-weight: 600;">{{ row.StudentID }}</code></td>
+                    <td style="font-weight: 600; color: var(--color-text-dark);">{{ row.Name }}</td>
+                    <td>{{ row.Date }}</td>
+                    <td>
+                        {% if row.Status|lower == 'present' %}
+                        <span class="chic-badge badge-pass">Present</span>
+                        {% else %}
+                        <span class="chic-badge badge-alert">Absent</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="chic-card" style="margin-bottom: 2rem;">
+    <div class="chic-card-header">
+        <span class="chic-card-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-slate)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>Live Dataset Preview: Marks Sample Data</span>
+        </span>
+        <span class="chic-badge badge-slate">Verified Records</span>
+    </div>
+    <div class="table-responsive">
+        <table class="chic-table">
+            <thead>
+                <tr>
+                    <th>StudentID</th>
+                    <th>Name</th>
+                    <th>Subject</th>
+                    <th>Marks</th>
+                    <th>MaxMarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in sample_marks_preview %}
+                <tr>
+                    <td><code style="color: var(--color-slate); font-weight: 600;">{{ row.StudentID }}</code></td>
+                    <td style="font-weight: 600; color: var(--color-text-dark);">{{ row.Name }}</td>
+                    <td>{{ row.Subject }}</td>
+                    <td style="font-family: var(--font-title); font-weight: 700; color: var(--color-text-dark); font-size: 1.05rem;">{{ row.Marks }}</td>
+                    <td>{{ row.MaxMarks }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,205 +1,241 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Performance & Attendance Automation Suite</title>
-    <style>
-        :root {
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --error: #ef4444;
-            --success: #10b981;
-        }
+{% extends "base.html" %}
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: var(--bg-gradient);
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+{% block title %}Upload & Validate Data | EduMetrics{% endblock %}
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 2rem;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.5s ease-out;
-        }
+{% block content %}
+<!-- Chic Hero Section -->
+<section class="chic-hero">
+    <div class="hero-content">
+        <h1 class="hero-headline">
+            Knowledge comes first, <em>clarity follows every mark.</em>
+        </h1>
+        <p class="hero-subtitle">
+            Upload institutional attendance logs and examination results for your assigned class. The engine validates column contracts, aggregates student records, and builds publication-ready Excel workbooks.
+        </p>
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
 
-        h1 {
-            font-size: 1.5rem;
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        
-        p.subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-        }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-
-        input[type="file"] {
-            display: block;
-            width: 100%;
-            padding: 0.75rem;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px dashed var(--glass-border);
-            border-radius: 8px;
-            color: var(--text-main);
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: border-color 0.3s, background 0.3s;
-            box-sizing: border-box;
-        }
-
-        input[type="file"]:hover {
-            border-color: var(--primary);
-            background: rgba(59, 130, 246, 0.1);
-        }
-        
-        /* For webkit file upload button styling */
-        input[type="file"]::file-selector-button {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 4px;
-            color: var(--text-main);
-            padding: 0.5rem 1rem;
-            margin-right: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        input[type="file"]::file-selector-button:hover {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        button {
-            width: 100%;
-            padding: 0.875rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            margin-top: 1rem;
-        }
-
-        button:hover {
-            background: var(--primary-hover);
-        }
-        
-        button:active {
-            transform: scale(0.98);
-        }
-
-        .message {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 0.875rem;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            color: #fca5a5;
-        }
-
-        .success {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            color: #6ee7b7;
-        }
-        
-        .download-btn {
-            display: inline-block;
-            margin-top: 1rem;
-            padding: 0.5rem 1.5rem;
-            background: var(--success);
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        
-        .download-btn:hover {
-            background: #059669;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Student Automation Suite</h1>
-        <p class="subtitle">Upload your CSV files to generate the final report.</p>
-
-        <form action="/generate" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="attendance_file">Attendance CSV File</label>
-                <input type="file" name="attendance_file" id="attendance_file" accept=".csv,.xlsx,.xls" required>
+        <!-- Trust / Verification Row -->
+        <div class="trust-badge-row">
+            <div class="trust-badge-circle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
             </div>
-            
-            <div class="form-group">
-                <label for="marks_file">Marks CSV File</label>
-                <input type="file" name="marks_file" id="marks_file" accept=".csv,.xlsx,.xls" required>
+            <div class="trust-badge-text">
+                <strong>Standardized Data Engine</strong>
+                Multi-class division support &bull; Zero pre-loaded dummy data for new accounts
             </div>
-            
-            <button type="submit">Generate Report</button>
-        </form>
-
-        {% if error %}
-        <div class="message error">
-            {{ error }}
         </div>
-        {% endif %}
-
-        {% if success %}
-        <div class="message success">
-            {{ success }}<br>
-            <a href="/download/{{ download_link }}" class="download-btn">Download Report</a>
-        </div>
-        {% endif %}
     </div>
-</body>
-</html>
+
+        <!-- Teacher Working at Desk Animation (Exact Video Loop - Zero Bounding Box) -->
+    <div class="hero-animation-wrapper" aria-label="Educator working at desk with laptop">
+        <img src="{{ url_for('static', filename='video/teacher_animation.webp') }}"
+             alt="Teacher working at desk animation"
+             class="hero-clean-animation"
+             width="680"
+             height="425"
+             loading="eager"
+             fetchpriority="high">
+    </div>
+</section>
+
+<!-- Dual Upload Dropzones -->
+<form action="{{ url_for('generate') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+    <!-- Suggestion 1.1: Target Class & Division Selector -->
+    <div class="chic-card" style="margin-bottom: 1.75rem; background: var(--color-cream-surface); border-color: var(--color-olive);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.85rem;">
+                <div style="width: 42px; height: 42px; border-radius: var(--radius-circle); background: var(--color-sage); color: var(--color-text-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 style="font-family: var(--font-title); font-size: 1.2rem; color: var(--color-text-dark); margin: 0;">Target Class / Division</h3>
+                    <p style="font-size: 0.825rem; color: var(--color-text-muted); margin: 0;">Select which registered class these attendance and marks records belong to.</p>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <select name="selected_class" id="uploadClassSelect" class="chic-input" style="min-width: 220px; font-weight: 600; cursor: pointer;">
+                    {% for c in teacher_classes %}
+                    <option value="{{ c }}" {% if c == active_class %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="pill-btn pill-btn-sm pill-btn-outline" onclick="toggleNewClassInput()">+ Add Class</button>
+            </div>
+        </div>
+
+        <div id="newClassInputContainer" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed rgba(167, 183, 198, 0.4);">
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="text" id="newClassInput" class="chic-input" placeholder="e.g. Class 11 - Div B" style="flex: 1;">
+                <button type="button" class="pill-btn pill-btn-sm pill-btn-olive" onclick="addNewClassInline()">Save Class</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="upload-grid">
+        <!-- Attendance Dropzone Card -->
+        <div class="chic-card" style="margin-bottom: 0;">
+            <div class="chic-card-header">
+                <span class="chic-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-olive)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <span>1. Attendance Records</span>
+                </span>
+                <a href="{{ url_for('download_sample', file_type='attendance') }}" class="pill-btn pill-btn-sm pill-btn-outline" id="btnDownloadSampleAtt">
+                    Sample CSV
+                </a>
+            </div>
+
+            <div class="chic-dropzone" id="attendance_dropzone">
+                <input type="file" name="attendance_file" id="attendance_file" accept=".csv,.xlsx,.xls" required>
+                <div class="dropzone-icon-box">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <div class="dropzone-title">Drop Attendance CSV or Browse</div>
+                <div class="dropzone-desc">Required columns: StudentID, Name, Date, Status (Optional: Division)</div>
+                <span class="chic-badge badge-sage">Supports .csv, .xlsx, .xls</span>
+            </div>
+
+            <!-- Pre-flight Validation Feedback -->
+            <div id="att_preview" class="file-preview-status"></div>
+        </div>
+
+        <!-- Marks Dropzone Card -->
+        <div class="chic-card" style="margin-bottom: 0;">
+            <div class="chic-card-header">
+                <span class="chic-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-slate)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                    <span>2. Marks &amp; Assessment Records</span>
+                </span>
+                <a href="{{ url_for('download_sample', file_type='marks') }}" class="pill-btn pill-btn-sm pill-btn-outline" id="btnDownloadSampleMarks">
+                    Sample CSV
+                </a>
+            </div>
+
+            <div class="chic-dropzone" id="marks_dropzone">
+                <input type="file" name="marks_file" id="marks_file" accept=".csv,.xlsx,.xls" required>
+                <div class="dropzone-icon-box" style="color: var(--color-slate);">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <div class="dropzone-title">Drop Marks CSV or Browse</div>
+                <div class="dropzone-desc">Required columns: StudentID, Name, Subject, Marks, MaxMarks (Optional: Division)</div>
+                <span class="chic-badge badge-slate">Supports .csv, .xlsx, .xls</span>
+            </div>
+
+            <!-- Pre-flight Validation Feedback -->
+            <div id="marks_preview" class="file-preview-status"></div>
+        </div>
+    </div>
+
+    <!-- Quick Academic Criteria Sliders Card -->
+    <div class="chic-card" style="margin-top: 1.75rem;">
+        <div class="chic-card-header">
+            <span class="chic-card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-olive)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span>Academic Thresholds for this Generation</span>
+            </span>
+            <a href="{{ url_for('settings') }}" class="chic-badge badge-sage" style="cursor: pointer;">
+                Configure Institutional Policies &rarr;
+            </a>
+        </div>
+
+        <div class="form-grid">
+            <div class="slider-group">
+                <div class="slider-header">
+                    <label for="setting_att_threshold" style="font-weight: 600; font-size: 0.875rem; color: var(--color-text-dark);">
+                        Minimum Attendance Threshold:
+                    </label>
+                    <span class="slider-value-display" id="display_att_threshold">{{ policy.attendance_threshold }}%</span>
+                </div>
+                <input type="range" name="attendance_threshold" id="setting_att_threshold" min="50" max="95" step="1" value="{{ policy.attendance_threshold }}">
+                <span style="font-size: 0.775rem; color: var(--color-text-muted);">
+                    Students below this percentage are highlighted in red in the Attendance tab and flagged on the at-risk register.
+                </span>
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-header">
+                    <label for="setting_pass_percentage" style="font-weight: 600; font-size: 0.875rem; color: var(--color-text-dark);">
+                        Passing Marks Percentage:
+                    </label>
+                    <span class="slider-value-display" id="display_pass_percentage">{{ policy.pass_percentage }}%</span>
+                </div>
+                <input type="range" name="pass_percentage" id="setting_pass_percentage" min="30" max="75" step="1" value="{{ policy.pass_percentage }}">
+                <span style="font-size: 0.775rem; color: var(--color-text-muted);">
+                    Scores below this threshold trigger Grade F and Fail status across overall and subject-level calculations.
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Action Row -->
+    <div style="display: flex; justify-content: center; margin: 2rem 0;">
+        <button type="submit" class="pill-btn pill-btn-olive" id="btnSubmitGenerate" style="min-width: 290px; padding: 0.95rem 2rem; font-size: 0.95rem;">
+            <span>Process Data &amp; Open Dashboard</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+            </svg>
+        </button>
+    </div>
+</form>
+
+<script>
+function toggleNewClassInput() {
+    const el = document.getElementById('newClassInputContainer');
+    el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+    if (el.style.display === 'block') {
+        document.getElementById('newClassInput').focus();
+    }
+}
+
+function addNewClassInline() {
+    const input = document.getElementById('newClassInput');
+    const val = input.value.trim();
+    if (!val) return;
+
+    fetch("{{ url_for('add_class') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "new_class_name=" + encodeURIComponent(val)
+    }).then(res => res.json()).then(data => {
+        if (data.success) {
+            const select = document.getElementById('uploadClassSelect');
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.text = val;
+            opt.selected = true;
+            select.appendChild(opt);
+            input.value = '';
+            toggleNewClassInput();
+        }
+    });
+}
+</script>
+{% endblock %}

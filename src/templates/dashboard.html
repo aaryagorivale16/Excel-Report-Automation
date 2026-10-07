@@ -1,0 +1,601 @@
+{% extends "base.html" %}
+
+{% block title %}Interactive Analytics Dashboard | EduMetrics{% endblock %}
+
+{% block content %}
+<!-- Dashboard Hero Header -->
+<section class="chic-hero" style="padding-bottom: 1.5rem;">
+    <div class="hero-content">
+        <h1 class="hero-headline">
+            Academic Performance <em>Dashboard.</em>
+        </h1>
+        <p class="hero-subtitle">
+            Consolidated evaluation of student attendance compliance, subject-wise mastery, class rank distribution, and institutional risk indicators.
+        </p>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <!-- Suggestion 1.1: Active Class Switcher Pill Dropdown in Dashboard -->
+            {% if teacher_classes %}
+            <form action="{{ url_for('switch_class') }}" method="POST" id="dashboardClassSwitchForm" style="margin: 0;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--color-cream-white); border: 1.5px solid var(--color-olive); border-radius: var(--radius-pill); padding: 0.3rem 0.85rem; box-shadow: var(--shadow-sm);">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-olive-dark)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-olive-dark); text-transform: uppercase;">Class:</span>
+                    <select name="active_class" id="dashboardClassSwitcher" class="action-bar-input" style="font-size: 0.875rem; font-weight: 600; cursor: pointer; color: var(--color-text-dark); padding: 0.15rem 0.25rem; width: auto; background: transparent; border: none;" onchange="this.form.submit()">
+                        {% for c in teacher_classes %}
+                        <option value="{{ c }}" {% if c == active_class %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+            {% else %}
+            <span class="chic-badge badge-olive" style="font-size: 0.85rem; padding: 0.45rem 1rem;">
+                Class: {{ active_class }}
+            </span>
+            {% endif %}
+            <span class="chic-badge badge-sage">Attendance Cutoff: {{ policy.attendance_threshold }}%</span>
+            <span class="chic-badge badge-sage">Pass Standard: {{ policy.pass_percentage }}%</span>
+        </div>
+    </div>
+
+    <!-- Header Action Controls -->
+    <div class="hero-feature-card" style="min-height: auto; padding: 1.5rem; justify-content: center; gap: 1rem;">
+        <div class="feature-tag-top">
+            <span>Class: {{ active_class }}</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0;">
+            Export the official multi-sheet Excel workbook with native charts or prepare high-resolution student slips.
+        </p>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem;">
+            {% if metrics %}
+            <button onclick="window.print()" class="pill-btn pill-btn-outline" id="btnDashboardPrint">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"/>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                    <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                <span>Print Roster</span>
+            </button>
+            {% if report_filename %}
+            <a href="{{ url_for('download', filename=report_filename) }}" class="dual-pill-btn" id="btnDashboardDownload">
+                <span>Download Excel</span>
+                <div class="dual-pill-circle">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </div>
+            </a>
+            {% endif %}
+            {% else %}
+            <a href="{{ url_for('index') }}" class="pill-btn pill-btn-olive">
+                Upload Records for {{ active_class }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% if not metrics %}
+<!-- Fresh Account / Empty State (No Dummy Data Pre-loaded) -->
+<div class="chic-card" style="text-align: center; padding: 4rem 2rem; margin-top: 1rem;">
+    <div style="width: 64px; height: 64px; border-radius: var(--radius-circle); background: var(--color-sage-light); color: var(--color-olive-dark); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            <line x1="12" y1="11" x2="12" y2="17"/>
+            <line x1="9" y1="14" x2="15" y2="14"/>
+        </svg>
+    </div>
+    <h2 style="font-family: var(--font-title); font-size: 1.85rem; color: var(--color-text-dark); margin-bottom: 0.5rem;">
+        No Records Uploaded for <em>{{ active_class }}</em> Yet
+    </h2>
+    <p style="font-size: 0.95rem; color: var(--color-text-muted); max-width: 520px; margin: 0 auto 2rem; line-height: 1.6;">
+        Fresh workspace initialized. Upload your Attendance CSV and Marks CSV to generate real-time analytics, grade distributions, toppers lists, and download multi-sheet Excel reports.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('index') }}" class="pill-btn pill-btn-olive" style="padding: 0.85rem 1.75rem;">
+            <span>Upload Records for {{ active_class }}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+            </svg>
+        </a>
+        <a href="{{ url_for('templates_view') }}" class="pill-btn pill-btn-outline" style="padding: 0.85rem 1.75rem;">
+            Download Starter Templates
+        </a>
+    </div>
+</div>
+
+{% else %}
+
+<!-- Suggestion 1.2: Multi-Division In-Dashboard Switcher & Side-by-Side Comparison -->
+{% if metrics.divisions and metrics.divisions|length > 1 %}
+<div class="chic-card" style="margin-bottom: 1.5rem; padding: 1.5rem; background: var(--color-cream-surface); border: 1.5px solid var(--color-light-slate);">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <div style="width: 32px; height: 32px; border-radius: var(--radius-circle); background: var(--color-sage); color: var(--color-text-dark); display: flex; align-items: center; justify-content: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+            </div>
+            <div>
+                <strong style="font-size: 0.95rem; color: var(--color-text-dark);">Division Comparison &amp; Filter</strong>
+                <span style="font-size: 0.775rem; color: var(--color-text-dim); display: block;">Auto-detected from CSV with dedicated workbook sub-sheets</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <button class="pill-btn pill-btn-sm pill-btn-olive division-filter-btn active" data-division="all">All Divisions</button>
+            {% for div in metrics.divisions %}
+            <button class="pill-btn pill-btn-sm pill-btn-outline division-filter-btn" data-division="{{ div }}">Div {{ div }}</button>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Side-by-side comparative summary cards -->
+    {% if metrics.division_summary %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+        {% for d in metrics.division_summary %}
+        <div style="background: var(--color-cream-white); border: 1px solid rgba(167, 183, 198, 0.4); border-radius: var(--radius-card); padding: 1.15rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                <span class="chic-badge badge-sage" style="font-weight: 700; font-size: 0.8rem;">Division {{ d.division }}</span>
+                <span style="font-size: 0.775rem; color: var(--color-text-muted);">{{ d.student_count }} Students</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div>
+                    <div style="font-size: 0.72rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 600;">Mean Score</div>
+                    <div style="font-family: var(--font-title); font-size: 1.25rem; font-weight: 700; color: var(--color-text-dark);">{{ d.avg_marks }}%</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.72rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 600;">Attendance</div>
+                    <div style="font-family: var(--font-title); font-size: 1.25rem; font-weight: 700; color: {% if d.avg_attendance >= policy.attendance_threshold %}var(--status-pass){% else %}var(--status-alert){% endif %};">{{ d.avg_attendance }}%</div>
+                </div>
+            </div>
+            <div style="margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px dashed rgba(167, 183, 198, 0.35); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.75rem; color: var(--color-text-muted);">Pass Rate:</span>
+                <span style="font-size: 0.825rem; font-weight: 700; color: var(--color-olive-dark);">{{ d.pass_rate }}% ({{ d.pass_count }}/{{ d.student_count }})</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- 4 Core KPI Stat Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div>
+            <span class="kpi-label">Total Enrolled</span>
+            <div class="kpi-value" id="kpiTotalStudents">{{ metrics.total_students }}</div>
+            <div class="kpi-sub">Students Registered</div>
+        </div>
+        <div class="kpi-icon-container">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div>
+            <span class="kpi-label">Class Average Score</span>
+            <div class="kpi-value" id="kpiAvgScore">{{ metrics.avg_marks }}%</div>
+            <div class="kpi-sub">Academic Mean</div>
+        </div>
+        <div class="kpi-icon-container" style="background: rgba(94, 120, 146, 0.18); color: var(--color-slate);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div>
+            <span class="kpi-label">Average Attendance</span>
+            <div class="kpi-value" id="kpiAvgAttendance">{{ metrics.avg_attendance }}%</div>
+            <div class="kpi-sub">Cutoff: {{ policy.attendance_threshold }}%</div>
+        </div>
+        <div class="kpi-icon-container">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div>
+            <span class="kpi-label">Pass Percentage</span>
+            <div class="kpi-value" id="kpiPassRate">{{ metrics.pass_rate }}%</div>
+            <div class="kpi-sub">{{ metrics.pass_count }} Pass / {{ metrics.fail_count }} Fail</div>
+        </div>
+        <div class="kpi-icon-container" style="background: rgba(189, 207, 170, 0.35); color: var(--status-pass);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Grid -->
+<div class="charts-grid">
+    <!-- Grade Distribution Bar Chart -->
+    <div class="chic-card" style="margin-bottom: 0;">
+        <div class="chic-card-header">
+            <span class="chic-card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-slate)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                <span>Grade Distribution Across Class</span>
+            </span>
+            <span class="chic-badge badge-slate">Standard Scale</span>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="gradeDistributionChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Pass vs Fail Status Split -->
+    <div class="chic-card" style="margin-bottom: 0;">
+        <div class="chic-card-header">
+            <span class="chic-card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-olive)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 14 14"/>
+                </svg>
+                <span>Academic Outcome</span>
+            </span>
+            <span class="chic-badge badge-sage">Pass vs. Fail</span>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="statusDoughnutChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Highlight Section: Class Toppers & At-Risk Intervention Lists -->
+<div class="splits-grid" style="margin-top: 2rem;">
+    <!-- Class Toppers Column -->
+    <div class="chic-card" style="margin-bottom: 0;">
+        <div class="chic-card-header">
+            <span class="chic-card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-olive)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="7"/>
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                </svg>
+                <span>Class Toppers</span>
+            </span>
+            <span class="chic-badge badge-sage">Top Rankers</span>
+        </div>
+
+        {% if metrics.toppers %}
+            {% for student in metrics.toppers %}
+            <div class="topper-item" data-division="{{ student.Division or '' }}">
+                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                    <span class="rank-badge rank-badge-{{ student.Class_Rank }}">{{ student.Class_Rank }}</span>
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--color-text-dark);">
+                            {{ student.Name }}
+                            {% if student.Division %}
+                            <span class="chic-badge badge-sage" style="font-size: 0.68rem; margin-left: 0.25rem;">Div {{ student.Division }}</span>
+                            {% endif %}
+                        </div>
+                        <div style="font-size: 0.775rem; color: var(--color-text-muted);">Student ID: {{ student.StudentID }}</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-family: var(--font-title); font-weight: 700; color: var(--color-olive-dark); font-size: 1.15rem;">{{ student.Overall_Percent }}%</div>
+                    <span class="chic-badge badge-olive">Grade {{ student.Grade }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: var(--color-text-muted); font-size: 0.85rem;">No student ranks recorded.</p>
+        {% endif %}
+    </div>
+
+    <!-- At-Risk Intervention List -->
+    <div class="chic-card" style="margin-bottom: 0;">
+        <div class="chic-card-header">
+            <span class="chic-card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--status-alert)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>At-Risk Students Needing Intervention</span>
+            </span>
+            <span class="chic-badge badge-alert">{{ metrics.at_risk|length }} Flagged</span>
+        </div>
+
+        {% if metrics.at_risk %}
+            {% for student in metrics.at_risk %}
+            <div class="at-risk-item" data-division="{{ student.Division or '' }}">
+                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                    <div style="width: 30px; height: 30px; border-radius: var(--radius-circle); background: var(--status-alert-bg); color: var(--status-alert); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;">
+                        !
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--color-text-dark);">
+                            {{ student.Name }}
+                            {% if student.Division %}
+                            <span class="chic-badge badge-sage" style="font-size: 0.68rem; margin-left: 0.25rem;">Div {{ student.Division }}</span>
+                            {% endif %}
+                        </div>
+                        <div style="font-size: 0.775rem; color: var(--color-text-muted);">Student ID: {{ student.StudentID }}</div>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
+                    {% if student.Grade == 'F' %}
+                    <span class="chic-badge badge-alert">Academic Fail ({{ student.Overall_Percent }}%)</span>
+                    {% endif %}
+                    {% if student.Low_Attendance_Flag %}
+                    <span class="chic-badge badge-slate">Low Attendance ({{ student.Attendance_Percent }}%)</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="padding: 1.5rem; text-align: center; color: var(--status-pass);">
+                <div style="width: 44px; height: 44px; border-radius: var(--radius-circle); background: var(--color-sage-light); margin: 0 auto 0.75rem; display: flex; align-items: center; justify-content: center; color: var(--color-olive);">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <strong style="color: var(--color-text-dark);">No students currently at risk</strong>
+                <p style="font-size: 0.825rem; color: var(--color-text-muted); margin-top: 0.25rem;">All students meet both attendance and passing standards.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Student Roster Table -->
+<div class="chic-card" style="margin-top: 2rem;">
+    <div class="chic-card-header">
+        <span class="chic-card-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-olive)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <span>Consolidated Student Roster</span>
+        </span>
+        <div class="table-filter-bar" style="margin-bottom: 0;">
+            <input type="text" id="rosterSearch" class="chic-input" style="min-width: 260px;" placeholder="Filter by student name or ID...">
+            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <button class="pill-btn pill-btn-sm pill-btn-olive roster-filter-btn active" data-filter="all">All</button>
+                <button class="pill-btn pill-btn-sm pill-btn-outline roster-filter-btn" data-filter="pass">Pass</button>
+                <button class="pill-btn pill-btn-sm pill-btn-outline roster-filter-btn" data-filter="fail">Fail</button>
+                <button class="pill-btn pill-btn-sm pill-btn-outline roster-filter-btn" data-filter="low_att">Low Attendance</button>
+                <button class="pill-btn pill-btn-sm pill-btn-outline roster-filter-btn" data-filter="topper">Toppers</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="chic-table" id="studentRosterTable">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>ID</th>
+                    {% if metrics.divisions and metrics.divisions|length > 1 %}
+                    <th>Div</th>
+                    {% endif %}
+                    <th>Student Name</th>
+                    <th>Classes Attended</th>
+                    <th>Attendance %</th>
+                    <th>Marks</th>
+                    <th>Score %</th>
+                    <th>Grade</th>
+                    <th>Final Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in metrics.roster %}
+                <tr data-status="{{ s.Final_Status }}" 
+                    data-division="{{ s.Division or '' }}"
+                    data-low-attendance="{{ 'true' if s.Low_Attendance_Flag else 'false' }}" 
+                    data-topper="{{ 'true' if s.Class_Rank <= 3 else 'false' }}">
+                    <td>
+                        <span class="rank-badge rank-badge-{{ s.Class_Rank }}">{{ s.Class_Rank }}</span>
+                    </td>
+                    <td><code style="color: var(--color-slate); font-weight: 600;">{{ s.StudentID }}</code></td>
+                    {% if metrics.divisions and metrics.divisions|length > 1 %}
+                    <td><span class="chic-badge badge-sage">{{ s.Division or '-' }}</span></td>
+                    {% endif %}
+                    <td style="font-weight: 600; color: var(--color-text-dark);">{{ s.Name }}</td>
+                    <td>{{ s.Classes_Attended }} / {{ s.Total_Classes }}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-weight: 600;">{{ s.Attendance_Percent }}%</span>
+                            {% if s.Low_Attendance_Flag %}
+                            <span class="chic-badge badge-alert" style="font-size: 0.68rem;">&lt; {{ policy.attendance_threshold }}%</span>
+                            {% else %}
+                            <span class="chic-badge badge-sage" style="font-size: 0.68rem;">Good</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>{{ s.Total_Marks }} / {{ s.Total_MaxMarks }}</td>
+                    <td style="font-family: var(--font-title); font-weight: 700; color: var(--color-text-dark); font-size: 1.05rem;">{{ s.Overall_Percent }}%</td>
+                    <td>
+                        {% if s.Grade == 'A+' %}
+                        <span class="chic-badge badge-olive">{{ s.Grade }}</span>
+                        {% elif s.Grade in ['A', 'B'] %}
+                        <span class="chic-badge badge-sage">{{ s.Grade }}</span>
+                        {% elif s.Grade in ['C', 'D'] %}
+                        <span class="chic-badge badge-slate">{{ s.Grade }}</span>
+                        {% else %}
+                        <span class="chic-badge badge-alert">{{ s.Grade }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if s.Final_Status == 'Pass' %}
+                        <span class="chic-badge badge-pass">PASS</span>
+                        {% else %}
+                        <span class="chic-badge badge-alert">FAIL</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if metrics %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Division Filter Buttons in Dashboard (Suggestion 1.2)
+    const divBtns = document.querySelectorAll('.division-filter-btn');
+    if (divBtns) {
+        divBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                divBtns.forEach(b => {
+                    b.classList.remove('active', 'pill-btn-olive');
+                    b.classList.add('pill-btn-outline');
+                });
+                btn.classList.add('active', 'pill-btn-olive');
+                btn.classList.remove('pill-btn-outline');
+
+                const chosenDiv = btn.getAttribute('data-division');
+                const rows = document.querySelectorAll('#studentRosterTable tbody tr');
+                const toppers = document.querySelectorAll('.topper-item');
+                const risks = document.querySelectorAll('.at-risk-item');
+
+                rows.forEach(r => {
+                    const rDiv = r.getAttribute('data-division');
+                    r.style.display = (chosenDiv === 'all' || rDiv === chosenDiv) ? '' : 'none';
+                });
+                toppers.forEach(t => {
+                    const tDiv = t.getAttribute('data-division');
+                    t.style.display = (chosenDiv === 'all' || tDiv === chosenDiv) ? '' : 'none';
+                });
+                risks.forEach(rk => {
+                    const rkDiv = rk.getAttribute('data-division');
+                    rk.style.display = (chosenDiv === 'all' || rkDiv === chosenDiv) ? '' : 'none';
+                });
+            });
+        });
+    }
+
+    // 2. Grade Distribution Chart
+    const gradeCtx = document.getElementById('gradeDistributionChart');
+    if (gradeCtx) {
+        const gradeLabels = ['A+', 'A', 'B', 'C', 'D', 'F'];
+        const gradeCounts = [
+            {{ metrics.grade_distribution.get('A+', 0) }},
+            {{ metrics.grade_distribution.get('A', 0) }},
+            {{ metrics.grade_distribution.get('B', 0) }},
+            {{ metrics.grade_distribution.get('C', 0) }},
+            {{ metrics.grade_distribution.get('D', 0) }},
+            {{ metrics.grade_distribution.get('F', 0) }}
+        ];
+
+        new Chart(gradeCtx, {
+            type: 'bar',
+            data: {
+                labels: gradeLabels,
+                datasets: [{
+                    label: 'Students',
+                    data: gradeCounts,
+                    backgroundColor: [
+                        '#8E9E83',
+                        '#BDCFAA',
+                        '#5E7892',
+                        '#A7B7C6',
+                        '#DCE7D0',
+                        '#8A4F58'
+                    ],
+                    borderColor: [
+                        '#77876d',
+                        '#a7b893',
+                        '#4d647a',
+                        '#8f9fae',
+                        '#bdcfaa',
+                        '#6f3d44'
+                    ],
+                    borderWidth: 1.5,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#5E7892', font: { family: 'Clarity City', weight: 600 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: '#5E7892' },
+                        grid: { color: 'rgba(167, 183, 198, 0.25)' }
+                    }
+                }
+            }
+        });
+    }
+
+    // 3. Pass vs Fail Status Doughnut Chart
+    const statusCtx = document.getElementById('statusDoughnutChart');
+    if (statusCtx) {
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pass', 'Fail'],
+                datasets: [{
+                    data: [{{ metrics.pass_count }}, {{ metrics.fail_count }}],
+                    backgroundColor: [
+                        '#BDCFAA',
+                        '#5E7892'
+                    ],
+                    borderColor: [
+                        '#F3EFDF',
+                        '#F3EFDF'
+                    ],
+                    borderWidth: 3,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#19241D', font: { family: 'Clarity City', size: 12, weight: 600 } }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}
